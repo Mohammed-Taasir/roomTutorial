@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace 'com.example.roomnotes'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.example.roomnotes"
@@ -34,8 +34,8 @@ dependencies {
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
-    implementation 'com.google.android.material:material-rc01'
     implementation 'androidx.cardview:cardview'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
