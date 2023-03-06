@@ -14,6 +14,7 @@ import java.util.List;
 public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
 
     private List<Note> notes = new ArrayList<>();
+    private onItemClickListener listener;       // this is our made up onitemclicklistener.
 
     @NonNull
     @Override
@@ -55,6 +56,26 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteHolder> {
             txtViewTitle = itemView.findViewById(R.id.text_view_title);
             txtViewDescription = itemView.findViewById(R.id.text_view_description);
             txtViewPriority = itemView.findViewById(R.id.text_view_priority);
+
+            itemView.setOnClickListener(new View.OnClickListener() {        // setting onclicklistener on a particular card of cardview.
+                @Override
+                public void onClick(View view) {
+                    int position = getAdapterPosition();                 // get the position of particular card which you click
+                    if(listener != null && position != RecyclerView.NO_POSITION){       // check if its valid listener(matlab this.listener = listener hua hai.) and valid position
+                        listener.onItemClick(notes.get(position));           // get the reference of that card that you clicked from notes.get(position) and apply listener.onItemClick() to it.
+                    }
+                }
+            });
         }
     }
+
+    public interface onItemClickListener{
+        void onItemClick(Note note);
+    }
+
+    public void setOnItemClickListener(onItemClickListener listener){
+        this.listener = listener;
+    }
+
+
 }

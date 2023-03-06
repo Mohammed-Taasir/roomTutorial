@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private NoteViewModel noteViewModel;
 
     public static final int ADD_NOTE_REQUEST = 1;
+    public static final int EDIT_NOTE_REQUEST = 2; // added this for edit operation
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
         FloatingActionButton btnAddNote = findViewById(R.id.btn_add_note);
         btnAddNote.setOnClickListener((view -> {
-            Intent intent = new Intent(MainActivity.this, AddNoteActivity.class);
+            Intent intent = new Intent(MainActivity.this, AddOrEditNoteActivity.class);
             startActivityForResult(intent, ADD_NOTE_REQUEST);                       // this intent will get the result from AddNoteActivity.
         }));
 
@@ -67,6 +68,18 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Note Deleted .. ", Toast.LENGTH_LONG).show();
             }
         }).attachToRecyclerView(recyclerView);
+
+        adapter.setOnItemClickListener(new NoteAdapter.onItemClickListener() {
+            @Override
+            public void onItemClick(Note note) {
+                Intent intent = new Intent(MainActivity.this, AddOrEditNoteActivity.class);
+                intent.putExtra(AddOrEditNoteActivity.EXTRA_ID, note.getId());      // we pass the id to receiving class for editing purposes. // agar already hai koi entry to uski id automatically set hogi and it will be != -1.
+                intent.putExtra(AddOrEditNoteActivity.EXTRA_TITLE, note.getTitle());
+                intent.putExtra(AddOrEditNoteActivity.EXTRA_DESCRIPTION, note.getDescription());
+                intent.putExtra(AddOrEditNoteActivity.EXTRA_PRIORITY, note.getPriority());
+                startActivityForResult(intent, EDIT_NOTE_REQUEST);
+            }
+        });
     }
 
     @Override
@@ -74,15 +87,32 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == ADD_NOTE_REQUEST && resultCode == RESULT_OK){
-            String title = data.getStringExtra(AddNoteActivity.EXTRA_TITLE);
-            String description = data.getStringExtra(AddNoteActivity.EXTRA_DESCRIPTION);
-            int priority = data.getIntExtra(AddNoteActivity.EXTRA_PRIORITY, 1);
+            String title = data.getStringExtra(AddOrEditNoteActivity.EXTRA_TITLE);
+            String description = data.getStringExtra(AddOrEditNoteActivity.EXTRA_DESCRIPTION);
+            int priority = data.getIntExtra(AddOrEditNoteActivity.EXTRA_PRIORITY, 1);
 
             Note note = new Note(title, description, priority);
             noteViewModel.insert(note);
 
             Toast.makeText(getApplicationContext(), "Note saved successfully !", Toast.LENGTH_LONG).show();
-        }else{
+        } else if(requestCode == EDIT_NOTE_REQUEST && resultCode == RESULT_OK){
+            int id = data.getIntExtra(AddOrEditNoteActivity.EXTRA_ID, -1);
+            if(id == -1){
+                Toast.makeText(getApplicationContext(), "Note can't be updated", Toast.LENGTH_LONG).show();
+                return;         // we want to exit this method because something went wrong.
+            }
+
+            String title = data.getStringExtra(AddOrEditNoteActivity.EXTRA_TITLE);
+            String description = data.getStringExtra(AddOrEditNoteActivity.EXTRA_DESCRIPTION);
+            int priority = data.getIntExtra(AddOrEditNoteActivity.EXTRA_PRIORITY, 1);
+
+            Note note = new Note(title, description, priority);
+            note.setId(id);     // update operation wont be succeeded until you set the id.
+            noteViewModel.update(note);
+
+            Toast.makeText(getApplicationContext(), "Note updated successfully !", Toast.LENGTH_LONG).show();
+        }
+        else{
             Toast.makeText(getApplicationContext(), "Note failed to save !", Toast.LENGTH_LONG).show();
         }
     }

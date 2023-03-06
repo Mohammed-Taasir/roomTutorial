@@ -3,7 +3,6 @@ package com.example.roomnotes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -13,7 +12,9 @@ import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
-public class AddNoteActivity extends AppCompatActivity {
+public class AddOrEditNoteActivity extends AppCompatActivity {
+
+    public static final String EXTRA_ID = "com.example.roomnotes.EXTRA_ID";     // added this for update operation
 
     public static final String EXTRA_TITLE = "com.example.roomnotes.EXTRA_TITLE";
     public static final String EXTRA_DESCRIPTION = "com.example.roomnotes.EXTRA_DESCRIPTION";
@@ -36,7 +37,17 @@ public class AddNoteActivity extends AppCompatActivity {
         numberPickerPriority.setMaxValue(10);
 
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_cancel);  // matlab agar wo cancel button ko dabayenge action bar me to home pohoch jayenge
-        setTitle("Add Note");
+
+        Intent intent = getIntent();
+        if(intent.hasExtra(EXTRA_ID)){
+            setTitle("Edit Note");
+            txtTitle.setText(intent.getStringExtra(EXTRA_TITLE));
+            txtDescription.setText(intent.getStringExtra(EXTRA_DESCRIPTION));
+            numberPickerPriority.setValue(intent.getIntExtra(EXTRA_PRIORITY, 1));       // after this we want to make changes in saveNote() method.
+        }else{
+            setTitle("Add Note");
+        }
+
     }
 
     @Override
@@ -71,6 +82,11 @@ public class AddNoteActivity extends AppCompatActivity {
         data.putExtra(EXTRA_TITLE, title);
         data.putExtra(EXTRA_DESCRIPTION, description);
         data.putExtra(EXTRA_PRIORITY, priority);
+
+        int id = getIntent().getIntExtra(EXTRA_ID, -1);     // ye mainactivity se aya hua intent hai toh id extract karre idhar. also why -1 becos we wont have any entry in database that has id = -1 so when id is -1 we can know id is invalid.
+        if(id != -1){
+            data.putExtra(EXTRA_ID, id);
+        }
 
         setResult(RESULT_OK, data);             // this kind of intent automatically sends result back to activity which calls this intent.
         finish();
