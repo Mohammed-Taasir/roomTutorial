@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">RoomNotes</string>
     <string name="save">Save</string>
+    <string name="delete_all_notes">Delete all notes</string>
 </resources>
